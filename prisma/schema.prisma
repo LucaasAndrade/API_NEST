@@ -7,11 +7,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model users {
-  id        Int       @id @default(autoincrement())
-  name      String?   @db.VarChar(100)
-  email     String?   @db.VarChar(127)
-  password  String?   @db.VarChar(100)
-  createdAt DateTime? @db.DateTime(0)
-  updatedAt DateTime? @db.DateTime(0)
+model User {
+  id         Int      @id @default(autoincrement()) @db.UnsignedInt
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @db.Timestamp(0)
+  birthAt    DateTime? @db.Date()
+  name       String   @db.VarChar(255)
+  email      String   @db.VarChar(255)
+  password   String   @db.VarChar(255)
+
+  @@map("users")
 }

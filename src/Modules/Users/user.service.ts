@@ -40,6 +40,8 @@ export class UserService {
     id: number,
     { email, name, password, birthAt }: UpdatePutUIserDTO,
   ) {
+    this.exists(id);
+
     return await this.prisma.user.update({
       where: {
         id,
@@ -57,6 +59,8 @@ export class UserService {
     id: number,
     { birthAt, email, name, password }: UpdatePatchUIserDTO,
   ) {
+    this.exists(id);
+
     const data: any = {};
 
     if (birthAt) data.birthAt = new Date(birthAt);
@@ -73,12 +77,16 @@ export class UserService {
   }
 
   async delete(id: number) {
-    if (!(await this.findOne(id)))
-      throw new NotFoundException('User not found');
+    this.exists(id);
     return await this.prisma.user.delete({
       where: {
         id,
       },
     });
+  }
+
+  async exists(id: number) {
+    if (!(await this.findOne(id)))
+      throw new NotFoundException('User not found');
   }
 }

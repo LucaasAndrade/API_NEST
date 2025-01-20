@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
-  ParseIntPipe,
   Patch,
   Post,
   Put,
@@ -15,6 +13,7 @@ import { UpdatePutUIserDTO } from './dto/update-put-user.dto';
 import { UpdatePatchUIserDTO } from './dto/update-patch-user.dto';
 import { UserService } from './user.service';
 import { LogInterceptor } from 'src/interceptors/log.interceptor';
+import { ParamId } from 'src/decorators/param-id.decorator';
 
 @Controller('users')
 export class UserController {
@@ -32,27 +31,27 @@ export class UserController {
   }
 
   @Get(':id')
-  async readOne(@Param('id', ParseIntPipe) params) {
-    if (!params) throw new Error('id is required');
-    return this.userService.findOne(params);
+  async readOne(@ParamId() id: number) {
+    if (!id) throw new Error('id is required');
+    return this.userService.findOne(id);
   }
 
   @Put(':id')
   async update(
     @Body() { email, name, password, birthAt }: UpdatePutUIserDTO,
-    @Param('id', ParseIntPipe) params,
+    @ParamId() id: number,
   ) {
     if (!birthAt) birthAt = '';
 
-    return this.userService.update(params, { email, name, password, birthAt });
+    return this.userService.update(id, { email, name, password, birthAt });
   }
 
   @Patch(':id')
   async updatePartial(
     @Body() { email, name, password, birthAt }: UpdatePatchUIserDTO,
-    @Param('id', ParseIntPipe) params,
+    @ParamId() id: number,
   ) {
-    return this.userService.updatePartial(params, {
+    return this.userService.updatePartial(id, {
       email,
       name,
       password,
@@ -61,10 +60,10 @@ export class UserController {
   }
 
   @Delete(':id')
-  async delete(@Param('id', ParseIntPipe) params) {
+  async delete(@ParamId() id: number) {
     return {
       method: 'delete',
-      params,
+      id,
     };
   }
 }

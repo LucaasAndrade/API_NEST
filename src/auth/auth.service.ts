@@ -10,8 +10,17 @@ import { User } from '@prisma/client';
 import { UserService } from 'src/Modules/Users/user.service';
 import { AuthRegisterDTO } from './dto/auth-register.dto';
 
+interface IToken {
+  sub: number;
+  name: string;
+  email: string;
+}
+
 @Injectable()
 export class AuthService {
+  private issuer = 'login';
+  private audience = 'users';
+
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
@@ -27,19 +36,19 @@ export class AuthService {
           email: user.email,
         },
         {
-          expiresIn: '10 seconds',
-          issuer: 'login',
-          audience: 'users',
+          expiresIn: '3 hours',
+          issuer: this.issuer,
+          audience: this.audience,
         },
       ),
     };
   }
 
-  async checkToken(token: string) {
+  async checkToken(token: string): Promise<any> {
     try {
       const data = this.jwtService.verify(token, {
-        audience: 'users',
-        issuer: 'login',
+        issuer: this.issuer,
+        audience: this.audience,
       });
 
       return data;
@@ -78,34 +87,48 @@ export class AuthService {
 
   async reset(password: string, old_password: string, token: string) {
     // TO DO -> Validar token.
+    try {
+      const data: IToken = await this.checkToken(token);
+      const { sub } = data;
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id: sub,
+        },
+      });
 
-    const id = 0;
-    const user = await this.prisma.user.findFirst({
-      where: {
-        id,
-      },
-    });
+      if (!user) throw new NotFoundException('User not found');
 
-    if (!user) throw new NotFoundException('Token not found');
+      if (user.password !== old_password)
+        throw new UnauthorizedException('Old password is incorrect');
 
-    if (user.password !== old_password)
-      throw new UnauthorizedException('Old password is incorrect');
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          password,
+        },
+      });
 
-    const userUpdated = await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        password,
-      },
-    });
-
-    return this.createToken(userUpdated);
+      return this.createToken(user);
+    } catch (error) {
+      throw new UnauthorizedException('Token invalid: ' + error.message);
+    }
   }
 
   async register(data: AuthRegisterDTO) {
     const user = await this.userService.create(data);
 
     return this.createToken(user);
+  }
+
+  async isValidToken(token: string): Promise<boolean> {
+    try {
+      this.checkToken(token);
+      return true;
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      return false;
+    }
   }
 }

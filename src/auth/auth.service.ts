@@ -44,7 +44,7 @@ export class AuthService {
     };
   }
 
-  async checkToken(token: string): Promise<any> {
+  checkToken(token: string): IToken {
     try {
       const data = this.jwtService.verify(token, {
         issuer: this.issuer,
@@ -122,7 +122,7 @@ export class AuthService {
     return this.createToken(user);
   }
 
-  async isValidToken(token: string): Promise<boolean> {
+  isValidToken(token: string): boolean {
     try {
       this.checkToken(token);
       return true;

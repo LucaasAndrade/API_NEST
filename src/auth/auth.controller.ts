@@ -4,6 +4,7 @@ import { AuthForgetDTO } from './dto/auth-forget.dto';
 import { AuthResetDTO } from './dto/auth-reset.dto';
 import { AuthService } from './auth.service';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { User } from 'src/decorators/user.decorator';
 
 interface IRequestLogin {
   email: string;
@@ -40,7 +41,7 @@ export class AuthController {
 
   @Post('me')
   @UseGuards(AuthGuard)
-  async me() {
-    return { me: 'ok' };
+  async me(@User() user) {
+    return { me: 'ok', user: user };
   }
 }

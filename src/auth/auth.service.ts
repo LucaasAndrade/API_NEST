@@ -11,6 +11,7 @@ import { UserService } from 'src/Modules/Users/user.service';
 import { AuthRegisterDTO } from './dto/auth-register.dto';
 
 interface IToken {
+  id: number;
   sub: number;
   name: string;
   email: string;
@@ -31,6 +32,7 @@ export class AuthService {
     return {
       acessToken: this.jwtService.sign(
         {
+          id: user.id,
           sub: user.id,
           name: user.name,
           email: user.email,

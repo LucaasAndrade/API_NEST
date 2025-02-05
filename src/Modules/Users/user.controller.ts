@@ -38,17 +38,23 @@ export class UserController {
 
   @Put(':id')
   async update(
-    @Body() { email, name, password, birthAt }: UpdatePutUIserDTO,
+    @Body() { email, name, password, birthAt, role }: UpdatePutUIserDTO,
     @ParamId() id: number,
   ) {
     if (!birthAt) birthAt = '';
 
-    return this.userService.update(id, { email, name, password, birthAt });
+    return this.userService.update(id, {
+      email,
+      name,
+      password,
+      birthAt,
+      role,
+    });
   }
 
   @Patch(':id')
   async updatePartial(
-    @Body() { email, name, password, birthAt }: UpdatePatchUIserDTO,
+    @Body() { email, name, password, birthAt, role }: UpdatePatchUIserDTO,
     @ParamId() id: number,
   ) {
     return this.userService.updatePartial(id, {
@@ -56,6 +62,7 @@ export class UserController {
       name,
       password,
       birthAt,
+      role,
     });
   }
 

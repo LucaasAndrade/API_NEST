@@ -15,11 +15,6 @@ export class AuthGuard implements CanActivate {
     try {
       const data = this.authService.checkToken(
         (authorization ?? ' ').split(' ')[1],
-
-        getRequest.tokenPayload = data;
-
-
-
       );
 
       getRequest.tokenPayload = data;
@@ -31,7 +26,5 @@ export class AuthGuard implements CanActivate {
     } catch (e) {
       return false;
     }
-
-    return;
   }
 }
